@@ -85,3 +85,13 @@ tensorboard --logdir='Your output path'
 ```bash
 tensorboard --logdir=result
 ```
+If you have windows, Install Ubuntu (WSL2).
+Then clone this repository:
+git clone https://github.com/YOUR_USER/A2PR.git
+cd A2PR
+Try running this script (it's what I ran so hopefully it works):
+bash setup.sh
+You can try to do a test run with this:
+conda activate A2PR
+python main.py --env_id halfcheetah-medium-v2 --seed 0 --alpha 40.0 --vae_weight 1.0 --device cpu --mask 1.0 --discount 0.99 --max_timesteps 200000 --eval_freq 20000
+See .gitignore for what not to commit.

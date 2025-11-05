@@ -86,8 +86,26 @@ if __name__ == "__main__":
     # save evaluation results
     evaluations = []
     evaluation_path = os.path.join(result_dir, file_name + ".npy")
-    if os.path.exists(model_path):
-        policy.load(model_path)
+    
+    # --- Auto-resume from the latest checkpoint if available ---
+    import re, glob
+    def _latest_ckpt(ckpt_dir, model_name):
+        pats = glob.glob(os.path.join(ckpt_dir, model_name + "_*.pth"))
+        if pats:
+            def _step(p):
+                m = re.search(r"_(\d+)\.pth$", p)
+                return int(m.group(1)) if m else -1
+            return max(pats, key=_step)
+        # fall back to the base path (no step suffix)
+        p = os.path.join(ckpt_dir, model_name + ".pth")
+        return p if os.path.exists(p) else None
+
+    latest = _latest_ckpt(ckpt_dir, model_name)
+    if latest:
+        logger.info(f"Resuming from checkpoint: {latest}")
+        policy.load(latest)
+    else:
+        logger.info("No checkpoint found — starting fresh.")
 
     for t in range(int(args.max_timesteps)):
         result = policy.train(replay_buffer, args.batch_size)
